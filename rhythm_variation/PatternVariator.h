@@ -14,14 +14,12 @@
 #include <fstream>
 #include <string>
 #include <math.h>
-#include <stdlib.h>
 #include <iomanip>
 #include "Matrix.h"
-#include "Pattern.h"
 #include <cstdio>
 #include <cstdlib>
 
-#include "Sequencer.h"
+#include "Pattern.h"
 
 #define MAX_NUM_GIBBS 500
 #define MAX_STABLE_COUNT 15
@@ -30,7 +28,15 @@
 // #define _DEBUG
 // #define _DEBUG_TIMING
 
-namespace pvr {
+namespace gs {
+    
+    /*! \class PatternVariator PatternVariator.h
+     *  \brief Class which provides methods to load a variation model and create variations of rhythm patterns.
+     *
+     * Use the default constructor to create a new instance of a PatternVariator object. Use loadRBMMatricesAsResources to load the matrices which 
+     * define the model for the pattern variation network. 
+     * Variations for a seed pattern are created calling variate.
+     */
     class PatternVariator {
         
     private:
@@ -63,9 +69,19 @@ namespace pvr {
         void randBinarization(double ** matrix, int rows, int cols);
         RhythmPattern * createEventList(double ** mat, int patternNr, bool transpose = false);
     public:
+        
+        /*!
+         * Loads the resources for the pattern variation network. The files to be loaded are included in the API download.
+         */
         void loadRBMMatricesAsResources(std::string hidden_biases_filename, std::string visible_biases_filename, std::string weights_filename);
         PatternVariator();
         
+        /* !
+         * Generates variations for a provided seed pattern.
+         * @param pattern The seed pattern used to create variations.
+         * @param originalPatternIdx Will be set to a index of the returned list which contains the seed pattern.
+         * @return A vector of RhythmPattern pointers containing the variations and the original pattern.
+         */
         std::vector<RhythmPattern *> * variate(RhythmPattern * pattern, int & originalPatternIdx);
     };
 }

@@ -1,64 +1,55 @@
+//
+//  Pattern.cpp
+//  tenoten
+//
+//  Created by Richard Vogl on 31/05/16.
+//
+//
+
 #include "Pattern.h"
+#include <iostream>
+#include <string>
 
 
-void convertToArray(unsigned int input, int * out) {
-	for (int i = 0; i < 16; i++) {
-		out[15 - i] = input & 0x01;
-		input = input >> 1;
-	}
+RhythmPattern * copyPattern(RhythmPattern * original) {
+    RhythmPattern * newPattern = new RhythmPattern();
+    
+    for (int instNr=0; instNr<original->size(); instNr++) {
+        InstTrack * track = original->at(instNr);
+        InstTrack * newTrack = new InstTrack();
+        for (int noteNr=0; noteNr<track->size(); noteNr++) {
+            InstNote * note = track->at(noteNr);
+            InstNote * newNote = new InstNote();
+            newNote->active = note->active;
+            newNote->timing = note->timing;
+            newNote->velocity = note->velocity;
+            
+            newTrack->push_back(newNote);
+        }
+        newPattern->push_back(newTrack);
+    }
+    return newPattern;
 }
 
-patternProbabilities loadPatternProbabilityFile(const char* filename) {
-    std::ifstream file(filename, std::ios::in | std::ios::binary);
-	patternProbabilities pattern;
-	if (file.is_open())	{
-        file.seekg(0, std::ios::beg);
-
-		char data[8];
-		for (int i = 0; i < 16; i++) {
-			file.read(data, 8);
-			pattern.kick[i] = *((double*)data);
-		}
-		for (int i = 0; i < 16; i++) {
-			file.read(data, 8);
-			pattern.snare[i] = *((double*)data);
-		}
-		for (int i = 0; i < 16; i++) {
-			file.read(data, 8);
-			pattern.hihat[i] = *((double*)data);
-		}
-		for (int i = 0; i < 16; i++) {
-			file.read(data, 8);
-			pattern.openhihat[i] = *((double*)data);
-		}
-		file.close();
-	}
-
-	return pattern;
+int countActiveNotes(RhythmPattern * pattern) {
+    int noteCount = 0;
+    
+    if (pattern != nullptr) {
+        int numInstruments = pattern->size();
+        for (int instNr = 0; instNr < numInstruments; instNr++){
+            InstTrack * track = pattern->at(instNr);
+            int numNotes = track->size();
+            for (int noteNr = 0; noteNr < numNotes; noteNr++) {
+                if (track->at(noteNr)->active) {
+                    noteCount++;
+                }
+            }
+        }
+    }
+    return noteCount;
 }
 
-std::vector<drumPattern> loadPatternFile(const char* filename) {
-    std::ifstream file(filename, std::ios::in | std::ios::binary);
-    std::vector<drumPattern>  patterns;
-	if (file.is_open())	{
-        file.seekg(0, std::ios::beg);
-		char data[10];
-		int readTracks = 0;
-
-		drumPattern pattern;
-
-		while (!file.eof())	{
-			file.read(data, 10);
-            pattern.kick = (uint16_t)(data[0] + data[1] * pow(2, 8));
-			pattern.snare = (uint16_t)(data[2] + data[3] * pow(2, 8));
-			pattern.hihat = (uint16_t)(data[4] + data[5] * pow(2, 8));
-			pattern.openhihat = (uint16_t)(data[6] + data[7] * pow(2, 8));
-			patterns.push_back(pattern);
-			readTracks++;
-		}
-		file.close();
-		int size = patterns.size();
-	}
-
-	return patterns;
+bool isPatternGreater(RhythmPattern * left, RhythmPattern * right ) {
+    // std::cout << std::to_string((long)left) << " and " << std::to_string((long)right) << std::endl;
+    return countActiveNotes(left) < countActiveNotes(right);
 }

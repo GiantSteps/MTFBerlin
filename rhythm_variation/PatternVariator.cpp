@@ -19,7 +19,7 @@ std::string getexepath() {
 
 using namespace std;
 
-namespace pvr {
+namespace gs {
     
     void PatternVariator::loadRBMMatricesAsResources(std::string hidden_biases_filename,
                                                      std::string visible_biases_filename,
@@ -443,7 +443,8 @@ namespace pvr {
         }
         double ** newPatterns = createMatrix(nrNewPatterns, nrVisible);
         double ** distances = createMatrix(nrNewPatterns, 16);
-        int patternsCreated = createRBMVariations(input, newPatterns, nrNewPatterns, distances);
+        //int patternsCreated =
+        createRBMVariations(input, newPatterns, nrNewPatterns, distances);
         
 #if defined(_DEBUG)
         std::cout << getStringForPattern(input);
@@ -458,7 +459,13 @@ namespace pvr {
         freeMatrix(newPatterns, nrNewPatterns, nrVisible);
         freeMatrix(distances, nrNewPatterns, 16);
         
+//        for (vector<RhythmPattern * >::iterator it = patternVec->begin() ; it != patternVec->end(); ++it) {
+//            RhythmPattern * pat = (*it);
+//            cout << pat->size()<<endl;
+//        }
+        
+        // std::sort(patternVec->begin(), patternVec->end(), isPatternGreater);
+        
         return patternVec;
     }
-    
 }
